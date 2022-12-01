@@ -1,21 +1,12 @@
-use std::{
-    error::Error,
-    fs::File,
-    io::{self, BufRead},
-};
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let file = File::open("./input/input")?;
-    let lines: Vec<String> = io::BufReader::new(file)
-        .lines()
-        .filter_map(Result::ok)
-        .collect();
-    println!("{:?}", part_one(&lines));
-    println!("{:?}", part_two(&lines));
+fn main() -> tools::Result<()> {
+    let input = process_input(tools::read_input()?);
+    tools::print_result(part_one(&input), part_two(&input));
     Ok(())
 }
 
-fn part_one(input: &[String]) -> u32 {
+type Input = Vec<u32>;
+
+fn process_input(input: Vec<String>) -> Input {
     let mut elves = vec![];
     let mut current: u32 = 0;
     for i in input.iter() {
@@ -26,20 +17,25 @@ fn part_one(input: &[String]) -> u32 {
         }
         current += i.parse::<u32>().unwrap();
     }
-    return elves.into_iter().max().unwrap();
+    elves
 }
-fn part_two(input: &[String]) -> u32 {
-    let mut elves = vec![];
-    let mut current: u32 = 0;
-    for i in input.iter() {
-        if i.is_empty() {
-            elves.push(current);
-            current = 0;
-            continue;
-        }
-        current += i.parse::<u32>().unwrap();
-    }
+
+fn part_one(elves: &Input) -> u32 {
+    *elves.into_iter().max().unwrap()
+}
+fn part_two(elves: &Input) -> u32 {
+    let mut elves = elves.clone();
     elves.sort();
     elves.reverse();
-    return elves.iter().take(3).sum();
+    elves.iter().take(3).sum()
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn testrun() -> tools::Result<()> {
+        let input = super::process_input(tools::read_testinput()?);
+        tools::print_result(super::part_one(&input), super::part_two(&input));
+        Ok(())
+    }
 }
